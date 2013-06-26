@@ -1,12 +1,11 @@
 <?php
 include "conf/config.php";
 require_once 'Cache/Lite.php';
-
-$id=mktime(0, date("i")/10, date("H"), date("m")  , date("d"), date("Y"));
+$id=mktime(date("H"), floor(date("i")/10), 0, date("n"), date("j"), date("Y"));
 if (isset($_GET['id'])){ $id=time();}
 
 $opts = array(
-    'cacheDir' => 'c:/tmp',
+    'cacheDir' => '/tmp/cache/',
     'automaticSerialization' => true,
     'lifeTime' => 600 );
 
@@ -71,7 +70,7 @@ function get_user_phone($userid) {
     return $row[0]."<!-- $duration -->";
 }
 
-$Cache_Lite = new Cache_Lite($options);
+$Cache_Lite = new Cache_Lite($opts);
 
 if ($design = $Cache_Lite->get($id)) {
 echo($design);
@@ -94,8 +93,10 @@ $design.=" </tr>\r\n";
 }
 
 $design.="</table>";
-$endglobcount = microtime(true); $globduration = $endglobcount - $globcount; 
-$design.= "generated $globduration<br>last update: ".gmdate("Y-m-d H:i:s ",$id);
+$endglobcount = microtime(true); $globduration = $endglobcount - $globcount;
+$design.= "generated $globduration<br>last update: ".date("Y-m-d H:i:s",$id);
 echo $design;
 $Cache_Lite->save($design);
 }
+$previd=$id-600;
+$Cache_Lite->remove($previd);
